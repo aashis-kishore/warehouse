@@ -7,7 +7,7 @@
     "start": "pm2 startOrGracefulReload ecosystem.config.js --env production && pm2 save",
     "start:staging": "pm2 startOrGracefulReload ecosystem.config.js --env development && pm2 save",
     "build": "rimraf -rf dist && tsc",
-    "dev": "NODE_ENV=development ts-node-dev --respawn -- src/"
+    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn -- src/"
   },
   "author": "Aashis Kishore <aashiskishore@gmail.com>",
   "engines": {
@@ -32,6 +32,7 @@
     "@types/node": "^16.7.1",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.1",
