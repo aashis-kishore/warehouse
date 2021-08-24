@@ -28,6 +28,10 @@ interface Find {
   (findUserServiceData: FindUserServiceData): Promise<User>
 }
 
+interface FindAll {
+  (): Promise<User[]>
+}
+
 interface ModifyUserServiceData {
   id: string
   name?: string
@@ -56,6 +60,7 @@ interface Remove {
 export interface UserService {
   new: New
   find: Find
+  findAll: FindAll
   modify: Modify
   remove: Remove
 }
@@ -127,6 +132,14 @@ class StandardUserService implements UserService {
     }
 
     return user
+  }
+
+  findAll = async (): Promise<User[]> => {
+    const users = await UserModel
+      .find({})
+      .select({ _id: 0, password: 0, salt: 0, __v: 0 })
+
+    return users
   }
 
   modify = async (modifyUserServiceData: ModifyUserServiceData)

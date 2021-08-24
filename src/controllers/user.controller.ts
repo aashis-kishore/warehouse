@@ -27,6 +27,7 @@ export type RemoveUserReqData = FindUserReqData
 export interface UserController {
   new: Middleware
   find: Middleware
+  findAll: Middleware
   modify: Middleware
   remove: Middleware
 }
@@ -59,13 +60,23 @@ class StandardUserController implements UserController {
         id: req.params.id as string
       }
 
-      const user = await userService.find(findUserReqData)
-
       const schema = compiledSchemas.users.find
 
       validateData(schema, findUserReqData)
 
+      const user = await userService.find(findUserReqData)
+
       return res.status(200).json(user)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  findAll: Middleware = async (_req, res, next) => {
+    try {
+      const users = await userService.findAll()
+
+      return res.status(200).json(users)
     } catch (err) {
       return next(err)
     }
