@@ -14,7 +14,7 @@ const iseHandler: ErrorMiddleware = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void | Response => {
-  if (!err.statusCode) {
+  if (!err.errors) {
     err = errorManager.stdErrorFromError(err)
   }
 

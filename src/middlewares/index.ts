@@ -8,7 +8,7 @@ import rnf from './rnf.middleware'
 import ise from './ise.middleware'
 
 export interface Middleware {
-  (req: Request, res: Response, next: NextFunction): void | Response
+  (req: Request, res: Response, next: NextFunction): Promise<void | Response>
 }
 
 interface UseDefaultMiddlewares {

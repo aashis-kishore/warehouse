@@ -1,4 +1,4 @@
-import { Application, Request, Response, NextFunction } from 'express'
+import { Application } from 'express'
 import { Middleware } from '.'
 import errorManager from '../libs/error-manager'
 
@@ -6,11 +6,11 @@ interface RNF {
   (app: Application): void
 }
 
-const rnfHandler: Middleware = (
-  _req: Request,
-  _res: Response,
-  next: NextFunction
-): void | Response => {
+const rnfHandler: Middleware = async (
+  _req,
+  _res,
+  next
+) => {
   return next(errorManager.stdErrorFromName('ResourceNotFoundError'))
 }
 

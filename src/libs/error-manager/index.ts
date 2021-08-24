@@ -1,11 +1,21 @@
+import { ErrorObject } from 'ajv'
 import logger from '../../utils/logger'
 import * as errors from './errors'
 
 type ErrorName =
-  'ResourceNotFoundError' |
-  'InternalServerError'
+  | 'BaseError'
+  | 'ResourceNotFoundError'
+  | 'InternalServerError'
+  | 'MongoError'
+  | 'SyntaxError'
+  | 'AjvValidationError'
 
-type ErrorArg = string
+export type ErrorArg =
+  | undefined
+  | null
+  | string
+  | Error
+  | ErrorObject[]
 
 interface StdErrorFromName {
   (name: ErrorName, arg?: ErrorArg): errors.BaseError
@@ -34,7 +44,7 @@ class StandardErrorManager implements ErrorManager {
     logger.error(err)
 
     if (err.name) {
-      return this.stdErrorFromName(err.name as ErrorName, err.message)
+      return this.stdErrorFromName(err.name as ErrorName, err)
     }
 
     return new errors.BaseError()
