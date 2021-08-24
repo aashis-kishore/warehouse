@@ -3,7 +3,8 @@ import {
   FindSchema,
   NewSchema,
   ModifySchema,
-  RemoveSchema
+  RemoveSchema,
+  FindAllSchema
 } from './schemas/user.schema'
 
 interface ValidateReturn {
@@ -23,6 +24,7 @@ export const validate: Validate = (schema, data) => ({
 interface UsersCompiledSchemas {
   new: ValidateFunction
   find: ValidateFunction
+  findAll: ValidateFunction
   modify: ValidateFunction
   remove: ValidateFunction
 }
@@ -41,6 +43,7 @@ const compileSchemas: CompileSchemas = () => {
   const users: UsersCompiledSchemas = {
     new: ajv.compile(NewSchema),
     find: ajv.compile(FindSchema),
+    findAll: ajv.compile(FindAllSchema),
     modify: ajv.compile(ModifySchema),
     remove: ajv.compile(RemoveSchema)
   }

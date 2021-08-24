@@ -1,5 +1,6 @@
 import { JSONSchemaType } from 'ajv'
 import {
+  FindAllUserReqData,
   FindUserReqData,
   ModifyUserReqData,
   NewUserReqData,
@@ -44,6 +45,22 @@ export const FindSchema: JSONSchemaType<FindUserReqData> = {
   required: [
     'id'
   ]
+}
+
+export const FindAllSchema: JSONSchemaType<FindAllUserReqData> = {
+  type: 'object',
+  properties: {
+    page: {
+      type: 'integer',
+      minimum: 1,
+      nullable: true
+    },
+    limit: {
+      type: 'integer',
+      minimum: 1,
+      nullable: true
+    }
+  }
 }
 
 export const ModifySchema: JSONSchemaType<ModifyUserReqData> = {

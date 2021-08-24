@@ -14,6 +14,11 @@ export interface FindUserReqData {
   id: string
 }
 
+export interface FindAllUserReqData {
+  page?: number
+  limit?: number
+}
+
 export interface ModifyUserReqData {
   id: string
   name?: string
@@ -33,6 +38,9 @@ export interface UserController {
 }
 
 class StandardUserController implements UserController {
+  static DEFAULT_LIMIT = 50
+  static DEFAULT_PAGE = 1
+
   new: Middleware = async (req, res, next) => {
     try {
       const newUserReqData: NewUserReqData = {
@@ -72,9 +80,23 @@ class StandardUserController implements UserController {
     }
   }
 
-  findAll: Middleware = async (_req, res, next) => {
+  findAll: Middleware = async (req, res, next) => {
     try {
-      const users = await userService.findAll()
+      const page = parseInt(
+        req.query.page as string) || StandardUserController.DEFAULT_PAGE
+      const limit = parseInt(
+        req.query.limit as string) || StandardUserController.DEFAULT_LIMIT
+
+      const findAllUserReqData: FindAllUserReqData = {
+        page,
+        limit
+      }
+
+      const schema = compiledSchemas.users.findAll
+
+      validateData(schema, findAllUserReqData)
+
+      const users = await userService.findAll(findAllUserReqData)
 
       return res.status(200).json(users)
     } catch (err) {

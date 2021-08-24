@@ -28,8 +28,13 @@ interface Find {
   (findUserServiceData: FindUserServiceData): Promise<User>
 }
 
+interface FindAllUserServiceData {
+  page?: number
+  limit?: number
+}
+
 interface FindAll {
-  (): Promise<User[]>
+  (findAllUserServiceData: FindAllUserServiceData): Promise<User[]>
 }
 
 interface ModifyUserServiceData {
@@ -134,10 +139,19 @@ class StandardUserService implements UserService {
     return user
   }
 
-  findAll = async (): Promise<User[]> => {
+  findAll = async (findAllUserServiceData: FindAllUserServiceData)
+    : Promise<User[]> => {
+    let { page, limit } = findAllUserServiceData
+
+    page = page as number
+    limit = limit as number
+
     const users = await UserModel
       .find({})
+      .sort({ time: 1 })
       .select({ _id: 0, password: 0, salt: 0, __v: 0 })
+      .skip((page - 1) * limit)
+      .limit(limit)
 
     return users
   }
