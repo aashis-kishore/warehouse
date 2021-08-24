@@ -9,12 +9,19 @@ interface NewUserServiceData {
   isAdmin?: boolean
 }
 
+interface NewUserData {
+  id: string
+  name: string
+  email: string
+  isAdmin: boolean
+}
+
 interface New {
-  (newUserServiceData: NewUserServiceData): Promise<User>
+  (newUserServiceData: NewUserServiceData): Promise<NewUserData>
 }
 
 interface FindUserServiceData {
-  email: string
+  id: string
 }
 
 interface Find {
@@ -52,11 +59,13 @@ class StandardUserService implements UserService {
     U001: 'U001' // User does not exist
   }
 
-  new = async (newUserServiceData: NewUserServiceData): Promise<User> => {
+  new = async (newUserServiceData: NewUserServiceData)
+    : Promise<NewUserData> => {
     const { password } = newUserServiceData
     const { hashedPassword, salt } = this.hashPassword(password)
 
     const user = await UserModel.create({
+      id: this.generateId(4),
       name: newUserServiceData.name,
       email: newUserServiceData.email,
       password: hashedPassword,
@@ -66,7 +75,11 @@ class StandardUserService implements UserService {
 
     const newUser = await user.save()
 
-    return newUser
+    return this.createNewUserData(newUser)
+  }
+
+  private generateId = (length: number) => {
+    return randomBytes(length).toString('hex').toUpperCase()
   }
 
   private hashPassword = (password: string) => {
@@ -79,10 +92,17 @@ class StandardUserService implements UserService {
     }
   }
 
+  private createNewUserData = (user: User): NewUserData => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isAdmin: user.isAdmin
+  })
+
   find = async (findUserServiceData: FindUserServiceData): Promise<User> => {
     const user = await UserModel
-      .findOne({ email: findUserServiceData.email })
-      .select({ password: 0, salt: 0, __v: 0 })
+      .findOne({ id: findUserServiceData.id })
+      .select({ _id: 0, password: 0, salt: 0, __v: 0 })
 
     if (!user) {
       throw errorManager.stdErrorFromName(

@@ -11,7 +11,7 @@ export interface NewUserReqData {
 }
 
 export interface FindUserReqData {
-  email: string
+  id: string
 }
 
 export interface UserController {
@@ -44,7 +44,7 @@ class StandardUserController implements UserController {
   find: Middleware = async (req, res, next) => {
     try {
       const findUserReqData: FindUserReqData = {
-        email: req.params.id as string
+        id: req.params.id as string
       }
 
       const user = await userService.find(findUserReqData)

@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose'
 
 export interface User {
+  id: string
   name: string
   email: string
   password: string
@@ -9,6 +10,12 @@ export interface User {
 }
 
 const UserSchema = new Schema<User>({
+  id: {
+    type: String,
+    minLength: 8,
+    maxLength: 32,
+    required: '"id" is required'
+  },
   name: {
     type: String,
     trim: true,

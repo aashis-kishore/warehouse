@@ -35,11 +35,11 @@ export const NewSchema: JSONSchemaType<NewUserReqData> = {
 export const FindSchema: JSONSchemaType<FindUserReqData> = {
   type: 'object',
   properties: {
-    email: {
+    id: {
       type: 'string'
     }
   },
   required: [
-    'email'
+    'id'
   ]
 }
