@@ -14,9 +14,18 @@ export interface FindUserReqData {
   id: string
 }
 
+export interface ModifyUserReqData {
+  id: string
+  name?: string
+  email?: string
+  password?: string
+  isAdmin?: boolean
+}
+
 export interface UserController {
   new: Middleware
   find: Middleware
+  modify: Middleware
 }
 
 class StandardUserController implements UserController {
@@ -52,6 +61,28 @@ class StandardUserController implements UserController {
       const schema = compiledSchemas.users.find
 
       validateData(schema, findUserReqData)
+
+      return res.status(200).json(user)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  modify: Middleware = async (req, res, next) => {
+    try {
+      const modifyUserReqData: ModifyUserReqData = {
+        id: req.params.id as string,
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        isAdmin: req.body.isAdmin
+      }
+
+      const schema = compiledSchemas.users.modify
+
+      validateData(schema, modifyUserReqData)
+
+      const user = await userService.modify(modifyUserReqData)
 
       return res.status(200).json(user)
     } catch (err) {

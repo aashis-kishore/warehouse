@@ -28,16 +28,17 @@ interface Find {
   (findUserServiceData: FindUserServiceData): Promise<User>
 }
 
-// interface ModifyUserServiceData {
-//   name?: string
-//   email?: string
-//   password?: string
-//   isAdmin?: boolean
-// }
+interface ModifyUserServiceData {
+  id: string
+  name?: string
+  email?: string
+  password?: string
+  isAdmin?: boolean
+}
 
-// interface Modify {
-//   (modifyUserServiceData: ModifyUserServiceData): Promise<void>
-// }
+interface Modify {
+  (modifyUserServiceData: ModifyUserServiceData): Promise<User>
+}
 
 // interface RemoveUserServiceData {
 //   email: string
@@ -50,7 +51,7 @@ interface Find {
 export interface UserService {
   new: New
   find: Find
-  // modify: Modify
+  modify: Modify
   // remove: Remove
 }
 
@@ -117,9 +118,41 @@ class StandardUserService implements UserService {
     return user
   }
 
-  // modify = async (modifyUserServiceData: ModifyUserServiceData): Promise<void> => {
+  modify = async (modifyUserServiceData: ModifyUserServiceData)
+    : Promise<User> => {
+    const { id } = modifyUserServiceData
+    const modifyableFields = this.getModifyableFields(modifyUserServiceData)
+    const user = await UserModel
+      .findOneAndUpdate({
+        id
+      },
+      { $set: modifyableFields },
+      { new: true })
+      .select({ _id: 0, password: 0, salt: 0, __v: 0 })
 
-  // }
+    if (!user) {
+      throw errorManager.stdErrorFromName(
+        'UnprocessableEntityError',
+        {
+          code: StandardUserService.ERR_CODES.U001,
+          message: 'user does not exist'
+        }
+      )
+    }
+
+    return user
+  }
+
+  private getModifyableFields = (modifyUserServiceData: ModifyUserServiceData)
+    : Record<string, unknown> => {
+    const modifyableFields: Record<string, unknown> = {}
+
+    const { name } = modifyUserServiceData
+
+    name && (modifyableFields.name = name)
+
+    return modifyableFields
+  }
 
   // remove = async (removeUserServiceData: RemoveUserServiceData): Promise<void> => {
 

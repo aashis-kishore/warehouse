@@ -12,6 +12,8 @@ export interface User {
 const UserSchema = new Schema<User>({
   id: {
     type: String,
+    unique: true,
+    index: true,
     minLength: 8,
     maxLength: 32,
     required: '"id" is required'
