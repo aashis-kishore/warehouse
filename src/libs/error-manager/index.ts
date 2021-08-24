@@ -5,15 +5,22 @@ import * as errors from './errors'
 type ErrorName =
   | 'BaseError'
   | 'ResourceNotFoundError'
+  | 'UnprocessableEntityError'
   | 'InternalServerError'
   | 'MongoError'
   | 'SyntaxError'
   | 'AjvValidationError'
 
+export interface SubError {
+  code: string
+  message: string
+}
+
 export type ErrorArg =
   | undefined
   | null
   | string
+  | SubError
   | Error
   | ErrorObject[]
 

@@ -1,4 +1,4 @@
-import { ErrorArg } from '.'
+import { ErrorArg, SubError } from '.'
 import { MongoError as MError } from 'mongodb'
 import { DefinedError, ErrorObject } from 'ajv'
 
@@ -31,7 +31,7 @@ export class BaseError extends Error {
     this.message = this.getMessage(arg)
     this.errors = [
       {
-        code: BaseError.DEFAULT_ERR_CODE,
+        code: (arg as SubError)?.code || BaseError.DEFAULT_ERR_CODE,
         message: this.message
       }
     ]
@@ -40,6 +40,10 @@ export class BaseError extends Error {
   private getMessage = (arg?: ErrorArg): string => {
     if (typeof arg === 'string') {
       return arg
+    }
+
+    if ((arg as SubError)?.message) {
+      return (arg as SubError).message
     }
 
     return this.message
@@ -52,6 +56,15 @@ export class ResourceNotFoundError extends BaseError {
 
     this.name = 'ResourceNotFoundError'
     this.statusCode = HTTPStatusCodes.RNF
+  }
+}
+
+export class UnprocessableEntityError extends BaseError {
+  constructor(arg?: ErrorArg) {
+    super(arg || 'unprocessable entity')
+
+    this.name = 'UnprocessableEntityError'
+    this.statusCode = HTTPStatusCodes.UE
   }
 }
 

@@ -10,8 +10,13 @@ export interface NewUserReqData {
   isAdmin?: boolean
 }
 
+export interface FindUserReqData {
+  email: string
+}
+
 export interface UserController {
   new: Middleware
+  find: Middleware
 }
 
 class StandardUserController implements UserController {
@@ -31,6 +36,24 @@ class StandardUserController implements UserController {
       const newUser = await userService.new(newUserReqData)
 
       return res.status(201).json(newUser)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  find: Middleware = async (req, res, next) => {
+    try {
+      const findUserReqData: FindUserReqData = {
+        email: req.params.id as string
+      }
+
+      const user = await userService.find(findUserReqData)
+
+      const schema = compiledSchemas.users.find
+
+      validateData(schema, findUserReqData)
+
+      return res.status(200).json(user)
     } catch (err) {
       return next(err)
     }

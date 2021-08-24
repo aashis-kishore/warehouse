@@ -1,5 +1,8 @@
 import { JSONSchemaType } from 'ajv'
-import { NewUserReqData } from '../../controllers/user.controller'
+import {
+  FindUserReqData,
+  NewUserReqData
+} from '../../controllers/user.controller'
 
 export const NewSchema: JSONSchemaType<NewUserReqData> = {
   type: 'object',
@@ -26,5 +29,17 @@ export const NewSchema: JSONSchemaType<NewUserReqData> = {
     'name',
     'email',
     'password'
+  ]
+}
+
+export const FindSchema: JSONSchemaType<FindUserReqData> = {
+  type: 'object',
+  properties: {
+    email: {
+      type: 'string'
+    }
+  },
+  required: [
+    'email'
   ]
 }
