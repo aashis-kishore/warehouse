@@ -2,7 +2,8 @@ import { JSONSchemaType } from 'ajv'
 import {
   FindUserReqData,
   ModifyUserReqData,
-  NewUserReqData
+  NewUserReqData,
+  RemoveUserReqData
 } from '../../controllers/user.controller'
 
 export const NewSchema: JSONSchemaType<NewUserReqData> = {
@@ -70,6 +71,18 @@ export const ModifySchema: JSONSchemaType<ModifyUserReqData> = {
     isAdmin: {
       type: 'boolean',
       nullable: true
+    }
+  },
+  required: [
+    'id'
+  ]
+}
+
+export const RemoveSchema: JSONSchemaType<RemoveUserReqData> = {
+  type: 'object',
+  properties: {
+    id: {
+      type: 'string'
     }
   },
   required: [

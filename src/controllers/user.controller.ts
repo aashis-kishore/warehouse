@@ -22,10 +22,13 @@ export interface ModifyUserReqData {
   isAdmin?: boolean
 }
 
+export type RemoveUserReqData = FindUserReqData
+
 export interface UserController {
   new: Middleware
   find: Middleware
   modify: Middleware
+  remove: Middleware
 }
 
 class StandardUserController implements UserController {
@@ -85,6 +88,24 @@ class StandardUserController implements UserController {
       const user = await userService.modify(modifyUserReqData)
 
       return res.status(200).json(user)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  remove: Middleware = async (req, res, next) => {
+    try {
+      const removeUserReqData: RemoveUserReqData = {
+        id: req.params.id as string
+      }
+
+      const schema = compiledSchemas.users.remove
+
+      validateData(schema, removeUserReqData)
+
+      const status = await userService.remove(removeUserReqData)
+
+      return res.status(status.statusCode).json({ code: status.code })
     } catch (err) {
       return next(err)
     }

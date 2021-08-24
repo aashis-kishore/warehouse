@@ -1,5 +1,10 @@
 import Ajv, { ValidateFunction, ErrorObject } from 'ajv'
-import { FindSchema, NewSchema, ModifySchema } from './schemas/user.schema'
+import {
+  FindSchema,
+  NewSchema,
+  ModifySchema,
+  RemoveSchema
+} from './schemas/user.schema'
 
 interface ValidateReturn {
   isValid: boolean
@@ -19,6 +24,7 @@ interface UsersCompiledSchemas {
   new: ValidateFunction
   find: ValidateFunction
   modify: ValidateFunction
+  remove: ValidateFunction
 }
 
 interface CompiledSchemas {
@@ -35,7 +41,8 @@ const compileSchemas: CompileSchemas = () => {
   const users: UsersCompiledSchemas = {
     new: ajv.compile(NewSchema),
     find: ajv.compile(FindSchema),
-    modify: ajv.compile(ModifySchema)
+    modify: ajv.compile(ModifySchema),
+    remove: ajv.compile(RemoveSchema)
   }
 
   return {

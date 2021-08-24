@@ -40,24 +40,35 @@ interface Modify {
   (modifyUserServiceData: ModifyUserServiceData): Promise<User>
 }
 
-// interface RemoveUserServiceData {
-//   email: string
-// }
+interface RemoveUserServiceData {
+  id: string
+}
 
-// interface Remove {
-//   (removeUserServiceData: RemoveUserServiceData): Promise<void>
-// }
+interface RemoveUserData {
+  code: string
+  statusCode: number
+}
+
+interface Remove {
+  (removeUserServiceData: RemoveUserServiceData): Promise<RemoveUserData>
+}
 
 export interface UserService {
   new: New
   find: Find
   modify: Modify
-  // remove: Remove
+  remove: Remove
 }
 
 class StandardUserService implements UserService {
   static ERR_CODES = {
-    U001: 'U001' // User does not exist
+    U001: 'U001', // User does not exist
+    U002: 'U002' // Operation failed
+  }
+
+  static OP_CODES = {
+    UD001: 'UD001', // Remove non-admin
+    UD002: 'UD002' // Remove admin
   }
 
   new = async (newUserServiceData: NewUserServiceData)
@@ -154,9 +165,53 @@ class StandardUserService implements UserService {
     return modifyableFields
   }
 
-  // remove = async (removeUserServiceData: RemoveUserServiceData): Promise<void> => {
+  remove = async (removeUserServiceData: RemoveUserServiceData)
+    : Promise<RemoveUserData> => {
+    const { id } = removeUserServiceData
+    const user = await UserModel.findOne({ id })
 
-  // }
+    if (!user) {
+      throw errorManager.stdErrorFromName(
+        'UnprocessableEntityError',
+        {
+          code: StandardUserService.ERR_CODES.U001,
+          message: 'user does not exist'
+        }
+      )
+    }
+
+    if (!user.isAdmin) {
+      return await this.removeNonAdmin(id)
+    }
+
+    return await this.removeAdmin()
+  }
+
+  private removeNonAdmin = async (id: string): Promise<RemoveUserData> => {
+    const status = await UserModel.deleteOne({ id })
+
+    if (!status.ok) {
+      throw errorManager.stdErrorFromName(
+        'InternalServerError',
+        {
+          code: StandardUserService.ERR_CODES.U002,
+          message: 'failed to delete user'
+        }
+      )
+    }
+
+    return {
+      code: StandardUserService.OP_CODES.UD001,
+      statusCode: 200
+    }
+  }
+
+  private removeAdmin = async (): Promise<RemoveUserData> => {
+    return {
+      code: StandardUserService.OP_CODES.UD002,
+      statusCode: 202
+    }
+  }
 }
 
 export default new StandardUserService()
