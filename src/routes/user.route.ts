@@ -5,6 +5,7 @@ const router = Router()
 
 router.post('', json(), userController.new)
 router.get('/:id', userController.find)
+router.post('/find', json(), userController.extFind)
 router.get('', userController.findAll)
 router.put('/:id', json(), userController.modify)
 router.delete('/:id', userController.remove)

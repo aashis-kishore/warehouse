@@ -28,6 +28,24 @@ interface Find {
   (findUserServiceData: FindUserServiceData): Promise<User>
 }
 
+interface ExtFindUserServiceData {
+  email: string
+  password?: string
+}
+
+interface ExtFindUserData {
+  isAdmin: boolean
+  id: string
+  name: string
+  email: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface ExtFind {
+  (extFindUserServiceData: ExtFindUserServiceData): Promise<ExtFindUserData>
+}
+
 interface FindAllUserServiceData {
   page?: number
   limit?: number
@@ -62,9 +80,18 @@ interface Remove {
   (removeUserServiceData: RemoveUserServiceData): Promise<RemoveUserData>
 }
 
+interface VerifyPassword {
+  (hashedPwd: string, candidate: string, salt: string): boolean
+}
+
+interface CreateExtFindUserData {
+  (user: User): ExtFindUserData
+}
+
 export interface UserService {
   new: New
   find: Find
+  extFind: ExtFind
   findAll: FindAll
   modify: Modify
   remove: Remove
@@ -73,7 +100,8 @@ export interface UserService {
 class StandardUserService implements UserService {
   static ERR_CODES = {
     U001: 'U001', // User does not exist
-    U002: 'U002' // Operation failed
+    U002: 'U002', // Operation failed
+    U003: 'U003' // Wrong password
   }
 
   static OP_CODES = {
@@ -137,6 +165,51 @@ class StandardUserService implements UserService {
     }
 
     return user
+  }
+
+  extFind: ExtFind = async (extFindUserServiceData) => {
+    const { email, password } = extFindUserServiceData
+
+    const user = await UserModel
+      .findOne({ email })
+      .select({ _id: 0, __v: 0 })
+
+    if (!user) {
+      throw errorManager.stdErrorFromName(
+        'UnprocessableEntityError',
+        {
+          code: StandardUserService.ERR_CODES.U001,
+          message: 'user does not exist'
+        }
+      )
+    }
+
+    if (password && !this.verifyPassword(user.password, password, user.salt)) {
+      throw errorManager.stdErrorFromName(
+        'UnprocessableEntityError',
+        {
+          code: StandardUserService.ERR_CODES.U003,
+          message: 'wrong password'
+        }
+      )
+    }
+
+    return this.createExtFindUserData(user)
+  }
+
+  private createExtFindUserData: CreateExtFindUserData = (user) => ({
+    isAdmin: user.isAdmin,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  })
+
+  private verifyPassword: VerifyPassword = (hashedPwd, candidate, salt) => {
+    const hashedCandidate = scryptSync(candidate, salt, 32).toString('hex')
+
+    return hashedPwd === hashedCandidate
   }
 
   findAll = async (findAllUserServiceData: FindAllUserServiceData)

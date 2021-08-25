@@ -7,6 +7,8 @@ export interface User {
   password: string
   salt: string
   isAdmin: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 const UserSchema = new Schema<User>({

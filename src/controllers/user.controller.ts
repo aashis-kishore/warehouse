@@ -14,6 +14,11 @@ export interface FindUserReqData {
   id: string
 }
 
+export interface ExtFindUserReqData {
+  email: string
+  password?: string
+}
+
 export interface FindAllUserReqData {
   page?: number
   limit?: number
@@ -32,6 +37,7 @@ export type RemoveUserReqData = FindUserReqData
 export interface UserController {
   new: Middleware
   find: Middleware
+  extFind: Middleware
   findAll: Middleware
   modify: Middleware
   remove: Middleware
@@ -73,6 +79,25 @@ class StandardUserController implements UserController {
       validateData(schema, findUserReqData)
 
       const user = await userService.find(findUserReqData)
+
+      return res.status(200).json(user)
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  extFind: Middleware = async (req, res, next) => {
+    try {
+      const extFindUserReqData: ExtFindUserReqData = {
+        email: req.body.email,
+        password: req.body.password
+      }
+
+      const schema = compiledSchemas.users.extFind
+
+      validateData(schema, extFindUserReqData)
+
+      const user = await userService.extFind(extFindUserReqData)
 
       return res.status(200).json(user)
     } catch (err) {

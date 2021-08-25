@@ -1,5 +1,6 @@
 import { JSONSchemaType } from 'ajv'
 import {
+  ExtFindUserReqData,
   FindAllUserReqData,
   FindUserReqData,
   ModifyUserReqData,
@@ -44,6 +45,22 @@ export const FindSchema: JSONSchemaType<FindUserReqData> = {
   },
   required: [
     'id'
+  ]
+}
+
+export const ExtFindSchema: JSONSchemaType<ExtFindUserReqData> = {
+  type: 'object',
+  properties: {
+    email: {
+      type: 'string'
+    },
+    password: {
+      type: 'string',
+      nullable: true
+    }
+  },
+  required: [
+    'email'
   ]
 }
 
